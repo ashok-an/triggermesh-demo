@@ -12,7 +12,7 @@ from cloudevents.conversion import to_structured
 
 
 start = datetime.datetime.now()
-_type = os.getenv('TASK_TYPE', '[COMMIT]')
+_type = os.getenv('TASK_TYPE', 'commit')
 fake = Faker()
 app = Flask(__name__)
 
