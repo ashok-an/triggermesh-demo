@@ -37,7 +37,7 @@ def get_ce():
     "source": "producer.tm.demo.{}".format(_type),
   }
   if request.method == 'POST':
-    attributes['custom'] = request.values.get('input')
+    attributes['custom'] = request.values.get('input', 'no-input')
 
   data = {'message': fake.text(), 'name': fake.name(), 'email': fake.email(), 'status': run_task() }
 
