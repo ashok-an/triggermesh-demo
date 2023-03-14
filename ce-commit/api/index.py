@@ -12,7 +12,7 @@ from cloudevents.conversion import to_structured
 
 
 start = datetime.datetime.now()
-_type = os.getenv('TASK_TYPE', 'default')
+_type = os.getenv('TASK_TYPE', '[COMMIT]')
 fake = Faker()
 app = Flask(__name__)
 
@@ -26,7 +26,7 @@ def run_task():
 @app.route('/', methods=['GET'])
 @app.route('/healthz', methods=['GET'])
 def get_healthz():
-  return {"message": f"up since {start}" }
+  return {"message": f"{_type}: up since {start}" }
 
 
 @app.route('/ce', methods=['GET', 'POST'])
