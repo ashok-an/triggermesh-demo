@@ -1,4 +1,5 @@
 import datetime
+import json
 import os
 import random
 import time
@@ -37,7 +38,8 @@ def get_ce():
     "source": "producer.tm.demo.{}".format(_type),
   }
   if request.method == 'POST':
-    attributes['custom'] = request.values.get('input', 'no-input')
+    data = json.loads(request.data)
+    attributes['custom'] = data.get('input', 'no-input')
 
   data = {'message': fake.text(), 'name': fake.name(), 'email': fake.email(), 'status': run_task() }
 
