@@ -1,6 +1,6 @@
 import datetime
+import humanize
 import json
-import os
 import random
 import time
 import uuid
@@ -12,30 +12,22 @@ from cloudevents.conversion import to_structured
 
 
 start = datetime.datetime.now()
-_type = os.getenv('TASK_TYPE', 'build')
 fake = Faker()
 app = Flask(__name__)
 
-
+#-----
 def run_task():
   time.sleep(random.randrange(2, 5))
   status = random.choice([True, True, True, True, False]) # 5:1
   return status
 
 
-@app.route('/', methods=['GET'])
-@app.route('/healthz', methods=['GET'])
-def get_healthz():
-  return {"message": f"{_type}: up since {start}" }
-
-
-@app.route('/ce', methods=['GET', 'POST'])
-def get_ce():
+def get_response(request, method='build'):
   status = run_task()
   attributes = {
     "id": str(uuid.uuid4()),
-    "type": "demo.tm.{}.{}".format(_type, 'pass' if status else 'fail') ,
-    "source": "producer.tm.demo.{}".format(_type),
+    "type": "kn.{}.{}".format(method, 'pass' if status else 'fail') ,
+    "source": "kn.demo.{}".format(method),
   }
   if request.method == 'POST':
     data = json.loads(request.data)
@@ -51,3 +43,23 @@ def get_ce():
 
   return response
 
+#-----
+@app.route('/', methods=['GET'])
+@app.route('/healthz', methods=['GET'])
+def get_healthz():
+  now = datetime.datetime.now()
+  return {"message": f"ce-demo: up since {humanize.naturaltime(now - start)}" }
+
+
+@app.route('/task/<kind>', methods=['GET', 'POST'])
+def do_task(kind):
+  return get_response(request=request, method=kind)
+
+
+#@app.route('/commit', methods=['GET', 'POST'])
+#def do_commit():
+#  return get_response(request=request, method='commit')
+
+
+if __name__ == '__main__':
+  app.run(debug=True, host='0.0.0.0')
