@@ -29,11 +29,18 @@ def get_response(request, method='build'):
     "type": "kn.{}.{}".format(method, 'pass' if status else 'fail') ,
     "source": "kn.demo.{}".format(method),
   }
-  if request.method == 'POST':
-    data = json.loads(request.data)
-    attributes['custom'] = data.get('input', 'no-input')
-
   data = {'message': fake.text(), 'name': fake.name(), 'email': fake.email(), 'status': run_task() }
+
+  if request.method == 'POST':
+    try:
+      data['input_json'] = request.get_json()
+    except:
+      data['input_json'] = {}
+
+    try:
+      data['input_headers'] = { i: request.headers[i] for i in request.headers.keys() if i.startswith('Ce') }
+    except:
+      data['input_headers'] = {}
 
   event = CloudEvent(attributes, data)
   headers, body = to_structured(event)
